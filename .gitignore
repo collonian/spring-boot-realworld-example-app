@@ -1,6 +1,11 @@
 .gradle
 /build/
 !gradle/wrapper/gradle-wrapper.jar
+/caches/
+/daemon/
+/native/
+/notifications/
+/wrapper/
 
 ### STS ###
 .apt_generated

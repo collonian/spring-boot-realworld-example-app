@@ -1,8 +1,7 @@
-FROM gradle:jdk-alpine
+#build stage
+FROM gradle:jdk-alpine as build-stage
 
 WORKDIR /home/gradle/project
-
-EXPOSE 8080
 
 USER root
 
@@ -14,11 +13,13 @@ COPY . /home/gradle/project
 
 RUN ./gradlew build
 
-
+#production stage
 FROM java:jre-alpine
 
 WORKDIR /home/gradle/project
 
-COPY --from=0 /home/gradle/project/build/libs/project-0.0.1-SNAPSHOT.jar .
+EXPOSE 8080
 
-ENTRYPOINT java -jar project-0.0.1-SNAPSHOT.jar
+COPY --from=build-stage /home/gradle/project/build/libs/project-0.0.1-SNAPSHOT.jar .
+
+ENTRYPOINT java $JAVA_OPTS -jar project-0.0.1-SNAPSHOT.jar
