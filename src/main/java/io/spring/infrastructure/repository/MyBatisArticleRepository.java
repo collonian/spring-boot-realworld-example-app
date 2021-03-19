@@ -1,8 +1,10 @@
 package io.spring.infrastructure.repository;
 
 import io.spring.core.article.Article;
+import io.spring.core.article.ArticleHistory;
 import io.spring.core.article.ArticleRepository;
 import io.spring.core.article.Tag;
+import io.spring.infrastructure.mybatis.mapper.ArticleHistoryMapper;
 import io.spring.infrastructure.mybatis.mapper.ArticleMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +13,12 @@ import java.util.Optional;
 
 @Repository
 public class MyBatisArticleRepository implements ArticleRepository {
-    private ArticleMapper articleMapper;
+    private final ArticleMapper articleMapper;
+    private final ArticleHistoryMapper articleHistoryMapper;
 
-    public MyBatisArticleRepository(ArticleMapper articleMapper) {
+    public MyBatisArticleRepository(ArticleMapper articleMapper, ArticleHistoryMapper articleHistoryMapper) {
         this.articleMapper = articleMapper;
+        this.articleHistoryMapper = articleHistoryMapper;
     }
 
     @Override
@@ -22,8 +26,10 @@ public class MyBatisArticleRepository implements ArticleRepository {
     public void save(Article article) {
         if (articleMapper.findById(article.getId()) == null) {
             createNew(article);
+            articleHistoryMapper.insert(ArticleHistory.created(article));
         } else {
             articleMapper.update(article);
+            articleHistoryMapper.insert(ArticleHistory.updated(article));
         }
     }
 
@@ -51,5 +57,6 @@ public class MyBatisArticleRepository implements ArticleRepository {
     @Override
     public void remove(Article article) {
         articleMapper.delete(article.getId());
+        articleHistoryMapper.insert(ArticleHistory.deleted(article));
     }
 }

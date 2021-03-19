@@ -4,12 +4,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import io.spring.core.article.Article;
+import io.spring.core.article.ArticleHistory;
 import io.spring.core.article.ArticleRepository;
 import io.spring.core.article.Tag;
 import io.spring.core.user.User;
 import io.spring.core.user.UserRepository;
+import io.spring.infrastructure.mybatis.mapper.ArticleHistoryMapper;
 import io.spring.infrastructure.repository.MyBatisArticleRepository;
 import io.spring.infrastructure.repository.MyBatisUserRepository;
 import java.util.Arrays;
@@ -17,8 +21,10 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -29,6 +35,7 @@ public class MyBatisArticleRepositoryTest {
   @Autowired private ArticleRepository articleRepository;
 
   @Autowired private UserRepository userRepository;
+  @MockBean(name="articleHistoryMapper") private ArticleHistoryMapper articleHistoryMapper;
 
   private Article article;
 
@@ -47,6 +54,10 @@ public class MyBatisArticleRepositoryTest {
     assertEquals(optional.get(), article);
     assertTrue(optional.get().getTags().contains(new Tag("java")));
     assertTrue(optional.get().getTags().contains(new Tag("spring")));
+
+    ArgumentCaptor<ArticleHistory> captor = ArgumentCaptor.forClass(ArticleHistory.class);
+    verify(articleHistoryMapper).insert(captor.capture());
+    assertEquals("CREATE", captor.getValue().getHistoryCode());
   }
 
   @Test
@@ -62,6 +73,11 @@ public class MyBatisArticleRepositoryTest {
     Article fetched = optional.get();
     assertEquals(fetched.getTitle(), newTitle);
     assertNotEquals(fetched.getBody(), "");
+
+    ArgumentCaptor<ArticleHistory> captor = ArgumentCaptor.forClass(ArticleHistory.class);
+    verify(articleHistoryMapper, times(2)).insert(captor.capture());
+    assertEquals("UPDATE", captor.getValue().getHistoryCode());
+    assertEquals(newTitle, captor.getValue().getTitle());
   }
 
   @Test
@@ -70,5 +86,9 @@ public class MyBatisArticleRepositoryTest {
 
     articleRepository.remove(article);
     assertFalse(articleRepository.findById(article.getId()).isPresent());
+
+    ArgumentCaptor<ArticleHistory> captor = ArgumentCaptor.forClass(ArticleHistory.class);
+    verify(articleHistoryMapper, times(2)).insert(captor.capture());
+    assertEquals("DELETE", captor.getValue().getHistoryCode());
   }
 }

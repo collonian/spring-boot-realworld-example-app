@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.spring.infrastructure.mybatis.mapper.ArticleHistoryMapper">
+    <insert id="insert">
+        insert into article_history (
+            id, article_id, history_code, title, description, body, created_at
+        ) values (
+            #{history.id},
+            #{history.articleId},
+            #{history.historyCode},
+            #{history.title},
+            #{history.description},
+            #{history.body},
+            #{history.createdAt}
+        )
+    </insert>
+</mapper>
