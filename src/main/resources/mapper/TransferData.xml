@@ -29,6 +29,16 @@
         </collection>
     </resultMap>
 
+    <resultMap id="articleHistoryData" type="io.spring.application.data.ArticleHistoryData">
+        <id column="id" property="id"/>
+        <result column="article_id" property="articleId"/>
+        <result column="history_code" property="historyCode"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="body" property="body"/>
+    </resultMap>
+
+
     <resultMap id="commentData" type="io.spring.application.data.CommentData">
         <id column="commentId" property="id"/>
         <result column="commentBody" property="body"/>

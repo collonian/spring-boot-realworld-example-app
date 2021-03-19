@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.spring.infrastructure.mybatis.readservice.ArticleHistoryReadService">
+    <select id="queryHistories" resultMap="transfer.data.articleHistoryData">
+    <![CDATA[
+        SELECT
+            history.id, history.article_id, history.history_code,
+            history.title, history.description, history.body,
+            history.created_at
+        FROM article_history history
+            INNER JOIN articles article
+                on history.article_id = article.id
+        WHERE
+            article.slug = #{slug}
+        ORDER BY
+            history.created_at desc
+        LIMIT #{page.offset}, #{page.limit}
+    ]]>
+    </select>
+
+    <select id="countHistories" resultType="java.lang.Integer">
+    <![CDATA[
+        SELECT
+            COUNT(1)
+        FROM article_history history
+            INNER JOIN articles article
+                on history.article_id = article.id
+        WHERE
+            article.slug = #{slug}
+    ]]>
+    </select>
+
+</mapper>
