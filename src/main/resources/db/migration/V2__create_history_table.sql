@@ -6,6 +6,5 @@ create table article_history (
   title varchar(255),
   description text,
   body text,
-  created_at TIMESTAMP NOT NULL,
-  primary key(id)
+  created_at TIMESTAMP NOT NULL
 );
